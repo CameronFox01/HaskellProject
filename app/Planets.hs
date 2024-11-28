@@ -7,8 +7,12 @@ data Planet = Planet {
     xCoor :: Float,     -- x-coordinate of the planet
     yCoor :: Float,     -- y-coordinate of the planet
     velocityX :: Float, -- Horizontal velocity
-    velocityY :: Float  -- Vertical velocity
-}
+    velocityY :: Float, -- Vertical velocity
+    gravity :: Float   -- Force of Gravity 
+} deriving (Eq)
+
+gravitationalConstant :: Float
+gravitationalConstant = 1e-1-- Arbitrary small scale for simulation
 
 -- Converts a planet to a picture
 planetToPicture :: Planet -> Picture
@@ -20,3 +24,24 @@ planetToPicture p =
 -- Converts all planets to pictures
 planetsToPicture :: [Planet] -> Picture
 planetsToPicture ps = Pictures [ planetToPicture p | p <- ps ]
+
+-- Calculate distance between two planets
+distance :: Planet -> Planet -> Float
+distance p1 p2 = sqrt ((xCoor p1 - xCoor p2)^2 + (yCoor p1 - yCoor p2)^2)
+
+-- Gravitational force between two planets as a vector (x, y components)
+gravitationalForce :: Planet -> Planet -> (Float, Float)
+gravitationalForce p1 p2
+    | dist == 0 = (0, 0) -- Avoid division by zero
+    | otherwise = (force * dx / dist, force * dy / dist) 
+  where
+    dist = distance p1 p2
+    dx = xCoor p2 - xCoor p1
+    dy = yCoor p2 - yCoor p1
+    force = gravitationalConstant * gravity p1 * gravity p2 / dist^2
+
+-- Sum up forces from all planets acting on a single planet
+netForce :: Planet -> [Planet] -> (Float, Float)
+netForce p ps = foldl addForces (0, 0) [gravitationalForce p other | other <- ps, other /= p]
+  where
+    addForces (fx, fy) (fx', fy') = (fx + fx', fy + fy')
