@@ -14,8 +14,10 @@ data SimState = SimState {
 myPlanets :: [Planet]
 myPlanets = [
     Planet 20 red 0 260 (-1) (-1) 200,
-    Planet 50 blue 0 0 0 0 2500,
-    Planet 30 green 0 (-150) (1) 1 400]
+    Planet 75 blue 0 0 0 0 2500,
+    Planet 30 green 0 (-150) (1) 1 400,
+    Planet 40 white 100 (-250) 1 1 800,
+    Planet 30 rose (-100) (250) (-1) (-1) 800]
 
 initialState :: SimState
 initialState = SimState {
@@ -42,7 +44,7 @@ renderFrame simState =
 
 -- Render the text box with the current gravity input
 renderTextBox :: String -> Picture
-renderTextBox input = translate (-400) (-450) $ -- Position at bottom-left corner
+renderTextBox input = translate (-400) (-300) $ -- Position at bottom-left corner
     pictures [ color black $ rectangleSolid 200 50           -- Background
              , color white $ translate (-90) (-10) $ scale 0.15 0.15 $ text input -- Text
              ]
@@ -50,7 +52,9 @@ renderTextBox input = translate (-400) (-450) $ -- Position at bottom-left corne
 -- Click event handler to spawn a new planet, Will start with 0 velocity
 handleEvent :: Event -> SimState -> SimState
 handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) simState =
-    let newPlanet = Planet 20 (dark red) x y 0 0 (gravityValue simState)
+    let size = max 10 (gravityValue simState / 10) --radius change here
+        sizeDebug = trace ("Size of new planet: " ++ show size) size
+        newPlanet = Planet sizeDebug (dark red) x y 0 0 (gravityValue simState)
     in simState { planets = newPlanet : planets simState }
 
 -- Handle keyboard input for modifying gravity
