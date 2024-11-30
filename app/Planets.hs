@@ -12,7 +12,7 @@ data Planet = Planet {
 } deriving (Eq)
 
 gravitationalConstant :: Float
-gravitationalConstant = 1e-1-- Arbitrary small scale for simulation
+gravitationalConstant = 1.5-- Arbitrary small scale for simulation 1e-1
 
 -- Converts a planet to a picture
 planetToPicture :: Planet -> Picture
