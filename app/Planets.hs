@@ -7,12 +7,11 @@ data Planet = Planet {
     xCoor :: Float,     -- x-coordinate of the planet
     yCoor :: Float,     -- y-coordinate of the planet
     velocityX :: Float, -- Horizontal velocity
-    velocityY :: Float, -- Vertical velocity
-    gravity :: Float   -- Force of Gravity 
+    velocityY :: Float -- Vertical velocity
 } deriving (Eq)
 
 gravitationalConstant :: Float
-gravitationalConstant = 1.5-- Arbitrary small scale for simulation 1e-1
+gravitationalConstant = 25 -- Arbitrary small scale for simulation 1e-1
 
 -- Converts a planet to a picture
 planetToPicture :: Planet -> Picture
@@ -29,6 +28,10 @@ planetsToPicture ps = Pictures [ planetToPicture p | p <- ps ]
 distance :: Planet -> Planet -> Float
 distance p1 p2 = sqrt ((xCoor p1 - xCoor p2)^2 + (yCoor p1 - yCoor p2)^2)
 
+-- Single Planets gravitation force
+planetToGravitationalForce :: Planet -> Float
+planetToGravitationalForce p = radius p * 25
+
 -- Gravitational force between two planets as a vector (x, y components)
 gravitationalForce :: Planet -> Planet -> (Float, Float)
 gravitationalForce p1 p2
@@ -38,10 +41,10 @@ gravitationalForce p1 p2
     dist = distance p1 p2
     dx = xCoor p2 - xCoor p1
     dy = yCoor p2 - yCoor p1
-    force = gravitationalConstant * gravity p1 * gravity p2 / dist^2
+    force = gravitationalConstant * planetToGravitationalForce p1 * planetToGravitationalForce p2 / dist^2
 
 -- Sum up forces from all planets acting on a single planet
 netForce :: Planet -> [Planet] -> (Float, Float)
-netForce p ps = foldl addForces (0, 0) [gravitationalForce p other | other <- ps, other /= p]
+netForce p ps =  foldl addForces (0, 0) [gravitationalForce p other | other <- ps, other /= p]
   where
     addForces (fx, fy) (fx', fy') = (fx + fx', fy + fy')
